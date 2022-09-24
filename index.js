@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(cors());
-app.use(express());
+app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bmculsr.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -16,6 +16,8 @@ async function run(){
   try{
     await client.connect();
     const serviceCollection = client.db("dragonWarehouse").collection("service");
+    const userCollection = client.db("dragonWarehouse").collection("users");
+    
     console.log('DB connection established')
     
     app.get('/service', async (req, res) => {
@@ -32,22 +34,48 @@ async function run(){
 			res.json(result);
 		});
     
+    // app.post('/service', async (req, res) =>{
+		// 	const service = req.body;
+		// 	const result = await serviceCollection.insertOne(service);
+		// 	res.json(result);
+		// });
+    // POST
+      app.post('/service', async (req, res) => {
+        const newService = req.body;
+        const result = await serviceCollection.insertOne(newService);
+        res.send(result);
+    });
+		
+		app.delete('/service/:id', async (req, res) =>{
+			const email = req.params.email;
+			// const filter = {email: email}
+			const result = await serviceCollection.deleteOne();
+			res.json(result);
+		});
+    
     // update items quantity or Restock
-    // app.put('/service/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const updatedQuantity = req.body;
-    //   const filter = { _id: ObjectId(id) };
-    //   const options = { upsert: true };
-    //   const updatedDoc = {
-    //       $set: {
-    //           updatedQuantity
-    //       }
-    //   };
-    //   const result = await serviceCollection.updateOne(filter, updatedDoc, options);
-    //   res.send(result);
-    // })
+    app.put('/service/:id', async (req, res) => {
+      const id = req.params.id;
+      const {quantity} = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+          $set: {quantity}
+      };
+      const result = await serviceCollection.updateOne(filter, updatedDoc, options);
+      console.log(result);
+      res.send(result);
+    })
     
+    //add Item
     
+  
+    
+    // users
+		app.get("/user", async (req, res) => {
+			const users = await userCollection.find().toArray();
+			res.send(users);
+		});
   }
   finally{
     // await client.close();

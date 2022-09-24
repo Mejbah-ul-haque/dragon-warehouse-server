@@ -21,11 +21,14 @@ async function run(){
     console.log('DB connection established')
     
     app.get('/service', async (req, res) => {
-      const query = {};
-      const cursor = serviceCollection.find(query);
+      console.log(req.headers);
+      const query = {user: req.headers.email};
+      const cursor = serviceCollection.find(query).sort({_id: -1});
       const services = await cursor.toArray();
       res.send(services);
     })
+    
+    // sort({_id: -1}) = for first position added services
     
     app.get("/service/:id", async (req, res) => {
 			const id = req.params.id;
@@ -47,9 +50,9 @@ async function run(){
     });
 		
 		app.delete('/service/:id', async (req, res) =>{
-			const email = req.params.email;
-			// const filter = {email: email}
-			const result = await serviceCollection.deleteOne();
+			const id = req.params.id;
+			const filter = {_id: ObjectId(id)}
+			const result = await serviceCollection.deleteOne(filter);
 			res.json(result);
 		});
     

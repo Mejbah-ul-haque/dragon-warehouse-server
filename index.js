@@ -22,7 +22,9 @@ async function run(){
     
     app.get('/service', async (req, res) => {
       console.log(req.headers);
-      const query = {user: req.headers.email};
+      const email = req.headers.email
+      const query = email?{user:email}: {};
+      console.log(query);
       const cursor = serviceCollection.find(query).sort({_id: -1});
       const services = await cursor.toArray();
       res.send(services);
@@ -53,6 +55,7 @@ async function run(){
 			const id = req.params.id;
 			const filter = {_id: ObjectId(id)}
 			const result = await serviceCollection.deleteOne(filter);
+      console.log(id, result);
 			res.json(result);
 		});
     

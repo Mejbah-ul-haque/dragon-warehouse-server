@@ -39,11 +39,7 @@ async function run(){
 			res.json(result);
 		});
     
-    // app.post('/service', async (req, res) =>{
-		// 	const service = req.body;
-		// 	const result = await serviceCollection.insertOne(service);
-		// 	res.json(result);
-		// });
+
     // POST
       app.post('/service', async (req, res) => {
         const newService = req.body;
@@ -66,7 +62,7 @@ async function run(){
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updatedDoc = {
-          $set: {quantity}
+          $set: {quantity: parseInt(quantity)}
       };
       const result = await serviceCollection.updateOne(filter, updatedDoc, options);
       console.log(result);

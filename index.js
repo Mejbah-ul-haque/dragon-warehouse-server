@@ -42,7 +42,8 @@ async function run(){
 
     // POST
       app.post('/service', async (req, res) => {
-        const newService = req.body;
+        const {name, description, price, quantity, supplierName, img, user} = req.body;
+        const newService = { name, description, price, quantity: parseInt(quantity), supplierName, img, user };
         const result = await serviceCollection.insertOne(newService);
         res.send(result);
     });
